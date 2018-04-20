@@ -30,6 +30,8 @@ services: {
 
   scheduler:               { defaultExceptions: false }    # Make all uncaught exceptions fatal.
   TFileService: { fileName: "ChargeAnalyzer.root" }
+  @table::microboone_services_reco
+  #@table::microboone_simulation_services
   #TPCEnergyCalibService:         @local::microboone_tpcenergycalib_service
   #Timing:       {}
   #SimpleMemoryCheck:     { ignoreTotal: 1 }     #default is one
@@ -53,6 +55,32 @@ services: {
   # OpDigiProperties:               @local::microboone_opdigiproperties
   #}
 
+}
+
+services.DetectorClocksService.InheritClockConfig:         false
+services.DetectorClocksService.TriggerOffsetTPC:           -0.400e3
+services.ChannelStatusService.ChannelStatusProvider.UseDB: false
+services.message.destinations :
+{
+  STDCOUT:
+  {
+     type:      "cout"      #tells the message service to output this destination to cout
+     threshold: "WARNING"   #tells the message service that this destination applies to WARNING and higher level messages
+     append:     true       #says to append all messages to the output
+     categories:
+     {
+       ChannelFilter:
+       {
+         limit: 0
+         reportEvery: 0
+       }
+       default:
+       {
+         limit: -1  #don't print anything at the infomsg level except the explicitly named categories
+         reportEvery: 1
+       }
+     }
+  }
 }
 
 physics: {
@@ -85,7 +113,7 @@ physics: {
 
 outputs.out0: { module_type: RootOutput
                 fileName:    "output.root" 
-                dataTier:    "hits" 
+                dataTier:    "charge" 
                 streamName:  "all" 
                 SelectEvents: [ path0 ]
                 compressionLevel: 1
