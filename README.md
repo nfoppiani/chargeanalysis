@@ -1,2 +1,2 @@
 # chargeanalysis
-## LarSoft analyzer to study Bragg peaks and charge in the detector
+## LarSoft analyzer to study Bragg peaks and charge in MicroBooNE
