@@ -104,6 +104,17 @@ double GeometryHelper::distance(const std::vector<double> &a,
   return sqrt(d);
 }
 
+double GeometryHelper::distance(const double a[3],
+                                const double b[3]) const {
+  double d = 0;
+
+  for (size_t i = 0; i < 3; i++) {
+    d += pow((a[i] - b[i]), 2);
+  }
+
+  return sqrt(d);
+}
+
 double GeometryHelper::distance(const TVector3 &a, const TVector3 &b) const {
   return (a - b).Mag();
 }
@@ -201,9 +212,6 @@ void GeometryHelper::buildRectangle(double length, double width,
                             start[1] - perp_axis[1] * width / 2};
   std::vector<double> p4 = {p3[0] + axis[0] * length, p3[1] + axis[1] * length};
 
-
-
-
   points.insert(points.end(), {p1, p2, p4, p3});
 }
 
@@ -247,6 +255,49 @@ int GeometryHelper::correct_direction(size_t pfp_id, const art::Event &evt,
   }
 
   return direction;
+}
+
+double GeometryHelper::dotProduct(const double a[3],
+                                  const double b[3]) const
+{
+  double aux_dot_product = 0;
+  for (size_t i = 0; i < 3; i++) 
+    aux_dot_product += a[i] * b[i];
+  
+  return aux_dot_product;
+}
+
+double GeometryHelper::norm(const double a[3]) const
+{
+  return dotProduct(a, a);
+}
+
+void GeometryHelper::normalize(const double a[3], double a_normalized[3]) const
+{
+  double aux_norm = norm(a);
+  for (size_t i = 0; i < 3; i++) 
+    a_normalized[i] = a[i] / aux_norm;
+}
+
+double GeometryHelper::scatteringAngle(const double previous_point[3],
+                                       const double this_point[3],
+                                       const double next_point[3]) const 
+{
+  double diff1[3] = {
+    this_point[0] - previous_point[0],
+    this_point[1] - previous_point[1],
+    this_point[2] - previous_point[2],
+  };
+  double diff2[3] = {
+    next_point[0] - this_point[0],
+    next_point[1] - this_point[1],
+    next_point[2] - this_point[2],
+  };
+
+  double aux_cos = dotProduct(diff1, diff2);
+  aux_cos /= (norm(diff1) * norm(diff2));
+  double angle = acos(aux_cos);
+  return angle;
 }
 
 } // namespace lee
