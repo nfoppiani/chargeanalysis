@@ -80,11 +80,9 @@ public:
              std::vector< int > &nHits,
              std::string _pfp_producer);
 
-  // void trackResiduals(const art::Event &e,
-  //                     std::string _pfp_producer,
-  //                     art::Ptr<recob::Track> candidate_track,
-  //                     double &mean,
-  //                     double &std);
+  double integral2charge(double const integral, int const plane) const;
+  
+  double dQdx2dEdx(double const dqdx) const;
 
   private:
     std::vector<double> _data_gain = {239.5, 239.5, 239.5}; // Only measured of collection plane, David Caratelli

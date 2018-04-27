@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <!DOCTYPE project [
-<!ENTITY name "dqdx_bnb_nue_cosmic">
-<!ENTITY release "v06_26_01_13">
+<!ENTITY name "charge_bnb_nue_cosmic">
+<!ENTITY release "v06_26_01_10">
 <!ENTITY qualifier "e10:prof">
 <!ENTITY file_type "mc">
 <!ENTITY run_type "physics">
-<!ENTITY project_version "1">
+<!ENTITY project_version "2">
 <!ENTITY user "foppiani">
 <!ENTITY dataset "prodgenie_bnb_intrinsic_nue_cosmic_uboone_mcc8.7_reco2_dev">
-<!ENTITY stage_name "dqdx">
-<!ENTITY tarball_location "/uboone/app/users/foppiani/Binaries/MyLarsoft/srcs/tar/v4/dqdx_analyzer.tar">
-<!ENTITY fcl_directory "/uboone/app/users/foppiani/Binaries/MyLarsoft/srcs/dqdxanalysis/dqdxanalysis/job/">
-<!ENTITY fcl_name "dqdxanalysis.fcl">
+<!ENTITY stage_name "charge">
+<!ENTITY tarball_location "/uboone/app/users/foppiani/Binaries/MyLarsoft/srcs/tar/v5/charge_analyzer.tar">
+<!ENTITY fcl_directory "/uboone/app/users/foppiani/Binaries/MyLarsoft/srcs/chargeanalysis/chargeanalysis/job/">
+<!ENTITY fcl_name "chargeanalysis.fcl">
 <!ENTITY main_dir "/uboone/data/users/foppiani/">
 <!ENTITY temp_dir "/uboone/data/users/foppiani/temp/temp/">
 <!ENTITY book_dir "/uboone/data/users/foppiani/temp/book/">
@@ -51,7 +51,7 @@
     <workdir>&main_dir;&name;/v&project_version;/work/</workdir>
     <bookdir>&book_dir;&name;/v&project_version;/</bookdir>
 
-    <numjobs>30</numjobs>
+    <numjobs>150</numjobs>
     <disk>4GB</disk>
     <memory>2048</memory>
     <maxfilesperjob>15</maxfilesperjob>
