@@ -290,6 +290,14 @@ double GeometryHelper::norm(const double a[3]) const
   return sqrt(dotProduct(a, a));
 }
 
+double GeometryHelper::costheta(const double a[3],
+                                const double b[3]) const
+{
+  double costheta = dotProduct(a, b);
+  costheta /= (norm(a) * norm(b));
+  return costheta;
+}
+
 void GeometryHelper::normalize(const double a[3], double a_normalized[3]) const
 {
   double aux_norm = norm(a);

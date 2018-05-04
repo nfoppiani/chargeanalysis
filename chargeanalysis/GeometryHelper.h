@@ -168,6 +168,8 @@ public:
 
   double norm(const double a[3]) const;
 
+  double costheta(const double a[3], const double b[3]) const;
+
   void normalize(const double a[3], double a_normalized[3]) const;
 
   double scatteringAngle(const double previous_point[3], 

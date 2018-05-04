@@ -128,14 +128,20 @@ private:
   double fRms_angle;
   double fMean_radial_distance;
   double fRms_radial_distance;
-  int fN_space_points;
+  int fN_spacepoints;
   double fRange_length_ratio;
-  double fSpace_points_length_ratio;
+  double fSpacepoints_length_ratio;
+
+  double fProjected_length_range_ratio;
+  double fProjected_length_length_ratio;
+  double fProjected_length;
 
   double fPitch_U, fPitch_V, fPitch_Y;
   double fDqdx_median_U, fDqdx_median_V, fDqdx_median_Y;
   double fDqdx_rms_U, fDqdx_rms_V, fDqdx_rms_Y;
-  double fDqdx_median_last4_U, fDqdx_median_last4_V, fDqdx_median_last4_Y;
+  double fDqdx_median_first6_U, fDqdx_median_first6_V, fDqdx_median_first6_Y;
+  double fDqdx_median_last8_U, fDqdx_median_last8_V, fDqdx_median_last8_Y;
+  double fDqdx_median_last8_without_first5_U, fDqdx_median_last8_without_first5_V, fDqdx_median_last8_without_first5_Y;
 
   // reco-true matching information
   int fMatchedPdgCode;
@@ -143,7 +149,7 @@ private:
   double fMatchedPx, fMatchedPy, fMatchedPz;
   double fMatchedVx, fMatchedVy, fMatchedVz;
   double fMatchedEndx, fMatchedEndy, fMatchedEndz;
-  double fDistanceFromMatched;
+  double fDistanceFromMatched, fMC_reco_costheta;
 
   // dqdx information
   double _dQdxRectangleLength;
@@ -221,10 +227,13 @@ ChargeAnalyzer::ChargeAnalyzer(fhicl::ParameterSet const &p)
   fChargeTree->Branch("rms_angle", &fRms_angle, "rms_angle/d");
   fChargeTree->Branch("mean_radial_distance", &fMean_radial_distance, "mean_radial_distance/d");
   fChargeTree->Branch("rms_radial_distance", &fRms_radial_distance, "rms_radial_distance/d");
+  fChargeTree->Branch("projected_length", &fProjected_length, "projected_length/d");
 
-  fChargeTree->Branch("n_space_points", &fN_space_points, "n_space_points/i");
+  fChargeTree->Branch("n_space_points", &fN_spacepoints, "n_space_points/i");
   fChargeTree->Branch("range_length_ratio", &fRange_length_ratio, "range_length_ratio/d");
-  fChargeTree->Branch("space_points_length_ratio", &fSpace_points_length_ratio, "space_points_length_ratio/d");
+  fChargeTree->Branch("space_points_length_ratio", &fSpacepoints_length_ratio, "space_points_length_ratio/d");
+  fChargeTree->Branch("projected_length_range_ratio", &fProjected_length_range_ratio, "projected_length_range_ratio/d");
+  fChargeTree->Branch("projected_length_length_ratio", &fProjected_length_length_ratio, "projected_length_length_ratio/d");
 
   fChargeTree->Branch("pitch_U", &fPitch_U, "pitch_U/d");
   fChargeTree->Branch("pitch_V", &fPitch_V, "pitch_V/d");
@@ -238,9 +247,17 @@ ChargeAnalyzer::ChargeAnalyzer(fhicl::ParameterSet const &p)
   fChargeTree->Branch("dqdx_rms_V", &fDqdx_rms_V, "dqdx_rms_V/d");
   fChargeTree->Branch("dqdx_rms_Y", &fDqdx_rms_Y, "dqdx_rms_Y/d");
 
-  fChargeTree->Branch("dqdx_median_last4_U", &fDqdx_median_last4_U, "dqdx_median_last4_U/d");
-  fChargeTree->Branch("dqdx_median_last4_V", &fDqdx_median_last4_V, "dqdx_median_last4_V/d");
-  fChargeTree->Branch("dqdx_median_last4_Y", &fDqdx_median_last4_Y, "dqdx_median_last4_Y/d");
+  fChargeTree->Branch("dqdx_median_first6_U", &fDqdx_median_first6_U, "dqdx_median_first6_U/d");
+  fChargeTree->Branch("dqdx_median_first6_V", &fDqdx_median_first6_V, "dqdx_median_first6_V/d");
+  fChargeTree->Branch("dqdx_median_first6_Y", &fDqdx_median_first6_Y, "dqdx_median_first6_Y/d");
+
+  fChargeTree->Branch("dqdx_median_last8_U", &fDqdx_median_last8_U, "dqdx_median_last8_U/d");
+  fChargeTree->Branch("dqdx_median_last8_V", &fDqdx_median_last8_V, "dqdx_median_last8_V/d");
+  fChargeTree->Branch("dqdx_median_last8_Y", &fDqdx_median_last8_Y, "dqdx_median_last8_Y/d");
+
+  fChargeTree->Branch("dqdx_median_last8_without_first5_U", &fDqdx_median_last8_without_first5_U, "dqdx_median_last8_without_first5_U/d");
+  fChargeTree->Branch("dqdx_median_last8_without_first5_V", &fDqdx_median_last8_without_first5_V, "dqdx_median_last8_without_first5_V/d");
+  fChargeTree->Branch("dqdx_median_last8_without_first5_Y", &fDqdx_median_last8_without_first5_Y, "dqdx_median_last8_without_first5_Y/d");
 
   // reco-true matching information
   fChargeTree->Branch("matched_pdg_code", &fMatchedPdgCode, "matched_pdg_code/i");
@@ -255,6 +272,7 @@ ChargeAnalyzer::ChargeAnalyzer(fhicl::ParameterSet const &p)
   fChargeTree->Branch("matched_endy", &fMatchedEndy, "matched_endy/d");
   fChargeTree->Branch("matched_endz", &fMatchedEndz, "matched_endz/d");
   fChargeTree->Branch("distance_from_matched", &fDistanceFromMatched, "distance_from_matched/d");
+  fChargeTree->Branch("mc_reco_costheta", &fMC_reco_costheta, "mc_reco_costheta/d");
 
   // dqdx information
   fChargeTree->Branch("dQdx_hits", "std::vector<double>", &fDQdx_hits);
@@ -502,15 +520,27 @@ void ChargeAnalyzer::spacePointTrajectory(art::Event const &evt, size_t const i_
 
   double range = trajectory_range.back();
   std::vector<double> residual_range;
-  std::vector<double> dqdx_for_median_last4[3];
+  std::vector<double> dqdx_for_median_first6[3], dqdx_for_median_last8[3], dqdx_for_median_last8_without_first5[3];
   for (size_t i = 0; i < trajectory_range.size(); i++)
   {
     residual_range.push_back(range - trajectory_range[i]);
-    if (residual_range.back() < 4)
+    if (trajectory_range[i] < 6)
     {
-      dqdx_for_median_last4[0].push_back(dqdx[0][i]);
-      dqdx_for_median_last4[1].push_back(dqdx[1][i]);
-      dqdx_for_median_last4[2].push_back(dqdx[2][i]);
+      dqdx_for_median_first6[0].push_back(dqdx[0][i]);
+      dqdx_for_median_first6[1].push_back(dqdx[1][i]);
+      dqdx_for_median_first6[2].push_back(dqdx[2][i]);
+    }
+    if (residual_range[i] < 8)
+    {
+      dqdx_for_median_last8[0].push_back(dqdx[0][i]);
+      dqdx_for_median_last8[1].push_back(dqdx[1][i]);
+      dqdx_for_median_last8[2].push_back(dqdx[2][i]);
+      if (trajectory_range[i] > 5)
+      {
+        dqdx_for_median_last8_without_first5[0].push_back(dqdx[0][i]);
+        dqdx_for_median_last8_without_first5[1].push_back(dqdx[1][i]);
+        dqdx_for_median_last8_without_first5[2].push_back(dqdx[2][i]);
+      }
     }
   }
 
@@ -537,7 +567,7 @@ void ChargeAnalyzer::spacePointTrajectory(art::Event const &evt, size_t const i_
   fRms_angle = rms_angle;
   fMean_radial_distance = mean_radial_distance;
   fRms_radial_distance = rms_radial_distance;
-  fN_space_points = x.size();
+  fN_spacepoints = x.size();
 
   fPitch_U = pitch[0],
   fPitch_V = pitch[1],
@@ -548,9 +578,17 @@ void ChargeAnalyzer::spacePointTrajectory(art::Event const &evt, size_t const i_
   fDqdx_rms_U = std_dev(fDqdx_U);
   fDqdx_rms_V = std_dev(fDqdx_V);
   fDqdx_rms_Y = std_dev(fDqdx_Y);
-  fDqdx_median_last4_U = median(dqdx_for_median_last4[0]);
-  fDqdx_median_last4_V = median(dqdx_for_median_last4[1]);
-  fDqdx_median_last4_Y = median(dqdx_for_median_last4[2]);
+  fDqdx_median_first6_U = median(dqdx_for_median_first6[0]);
+  fDqdx_median_first6_V = median(dqdx_for_median_first6[1]);
+  fDqdx_median_first6_Y = median(dqdx_for_median_first6[2]);
+  fDqdx_median_last8_U = median(dqdx_for_median_last8[0]);
+  fDqdx_median_last8_V = median(dqdx_for_median_last8[1]);
+  fDqdx_median_last8_Y = median(dqdx_for_median_last8[2]);
+  fDqdx_median_last8_without_first5_U = median(dqdx_for_median_last8_without_first5[0]);
+  fDqdx_median_last8_without_first5_V = median(dqdx_for_median_last8_without_first5[1]);
+  fDqdx_median_last8_without_first5_Y = median(dqdx_for_median_last8_without_first5[2]);
+
+  fProjected_length = distance_projection.back() - distance_projection.front();
 }
 
 void ChargeAnalyzer::reconfigure(fhicl::ParameterSet const &p)
@@ -678,6 +716,11 @@ void ChargeAnalyzer::analyze(art::Event const &evt)
       }
     }
 
+    recoTrueMatching(evt, pfparticle);
+    double reco_dir[3] = {fDirectionx, fDirectiony, fDirectionz};
+    double mc_dir[3] = {fMatchedPx, fMatchedPy, fMatchedPz};
+    fMC_reco_costheta = geoHelper.costheta(reco_dir, mc_dir);
+
     std::vector<double> fStart = {fStartx, fStarty, fStartz};
     fDistanceFromTrue = geoHelper.distance(fStart, fTrue_v_sce);
     // std::cout << "Startz: " << fStartz <<  ", Startx:  " << fStartx << std::endl;
@@ -737,12 +780,11 @@ void ChargeAnalyzer::analyze(art::Event const &evt)
     fReco_energy_V = this_energy[1];
     fReco_energy_Y = this_energy[2];
 
-    recoTrueMatching(evt, pfparticle);
-
-    double direction[3] = {fDirectionx, fDirectiony, fDirectionz};
-    spacePointTrajectory(evt, i_pfp, direction);
+    spacePointTrajectory(evt, i_pfp, reco_dir);
     fRange_length_ratio = fRange / fLength;
-    fSpace_points_length_ratio = fN_space_points / fLength;
+    fSpacepoints_length_ratio = fN_spacepoints / fLength;
+    fProjected_length_range_ratio = fProjected_length / fRange;
+    fProjected_length_length_ratio = fProjected_length / fLength;
 
     fChargeTree->Fill();
     clear();

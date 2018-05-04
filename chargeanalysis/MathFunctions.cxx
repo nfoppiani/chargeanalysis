@@ -1,6 +1,7 @@
 #include <iostream>
 #include <math.h> /* pow */
 #include <vector>
+#include <algorithm>
 
 void remove_nan(std::vector<double> &a)
 {
